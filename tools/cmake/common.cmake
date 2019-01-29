@@ -111,7 +111,7 @@ if(WIN32)
 	# https://stackoverflow.com/questions/23950887/does-cmake-offer-a-method-to-set-the-working-directory-for-a-given-build-system
 	set_target_properties(${APP} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/dist/bin")
 
-	install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/Media
+	install(DIRECTORY ${CMAKE_SOURCE_DIR}/dist/media
 		DESTINATION ./
 		CONFIGURATIONS Release RelWithDebInfo Debug
 	)
