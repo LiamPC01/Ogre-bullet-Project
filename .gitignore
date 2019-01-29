@@ -22,7 +22,7 @@
 *.jar
 *.rar
 *.tar
-*.zip
+#*.zip -- ogre uses packed file, we loose these if we don't store zips. 
 
 # Logs and databases #
 ######################
