@@ -144,23 +144,82 @@ void Game::setupBoxMesh()
     SceneNode* thisSceneNode = scnMgr->getRootSceneNode()->createChildSceneNode();
     thisSceneNode->attachObject(box);
 
-    thisSceneNode->setPosition(0,0,0);
+    thisSceneNode->setPosition(0,200,0);
 
     // Axis
-    Vector3 axis(0.5,0.5,0.5);
+    Vector3 axis(1.0,1.0,0.0);
     axis.normalise();
 
     //angle
-    Radian rads(Degree(20.0));
+    Radian rads(Degree(60.0));
 
-    //Create a quateterion from axis angle
+    //quat from axis angle
     Quaternion quat(rads, axis);
 
-    //Set the scale
+   // thisSceneNode->setOrientation(quat);
     thisSceneNode->setScale(1.0,1.0,1.0);
 
-    //Set the orientation
+
+    //get bounding box here.
+    thisSceneNode->_updateBounds();
+    const AxisAlignedBox& b = thisSceneNode->_getWorldAABB(); // box->getWorldBoundingBox();
+   thisSceneNode->showBoundingBox(true);
+   // std::cout << b << std::endl;
+   // std::cout << "AAB [" << (float)b.x << " " << b.y << " " << b.z << "]" << std::endl;
+
+   // Now I have a bounding box I can use it to make the collision shape.
+   // I'll rotate the scene node and later the collision shape.
     thisSceneNode->setOrientation(quat);
+
+
+    Vector3 meshBoundingBox(b.getSize());
+
+    if(meshBoundingBox == Vector3::ZERO)
+    {
+        std::cout << "bounding voluem size is zero." << std::endl;
+    }
+
+    //create a dynamic rigidbody
+
+    btCollisionShape* colShape = new btBoxShape(btVector3(meshBoundingBox.x, meshBoundingBox.y, meshBoundingBox.z));
+    std::cout << "Mesh box col shape [" << (float)meshBoundingBox.x << " " << meshBoundingBox.y << " " << meshBoundingBox.z << "]" << std::endl;
+   // btCollisionShape* colShape = new btBoxShape(btVector3(10.0,10.0,10.0));
+    //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+    collisionShapes.push_back(colShape);
+
+    /// Create Dynamic Objects
+    btTransform startTransform;
+    startTransform.setIdentity();
+    startTransform.setRotation(btQuaternion(quat.x, quat.y, quat.z, quat.w));
+
+    btScalar mass(1.f);
+
+    //rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f);
+
+    btVector3 localInertia(0, 0, 0);
+    if (isDynamic)
+    {
+        std::cout << "I see the cube is dynamic" << std::endl;
+        colShape->calculateLocalInertia(mass, localInertia);
+    }
+
+    std::cout << "Local inertia [" << (float)localInertia.x() << " " << localInertia.y() << " " << localInertia.z() << "]" << std::endl;
+
+
+    startTransform.setOrigin(btVector3(0, 200, 0));
+
+    //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+    btRigidBody* body = new btRigidBody(rbInfo);
+
+    //Link to ogre
+    body->setUserPointer((void*)thisSceneNode);
+
+    //  body->setRestitution(0.5);
+
+    dynamicsWorld->addRigidBody(body);
 }
 
 void Game::setupFloor()
