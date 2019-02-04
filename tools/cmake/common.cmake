@@ -56,7 +56,7 @@ message(STATUS ${CMAKE_BINARY_DIR})
 #)
 
 # For later Bullet3 tutorials
-# find_package(Bullet REQUIRED)
+find_package(Bullet REQUIRED)
 
 # Debugging
 # message("BULLET_INCLUDE_DIRS:")
@@ -65,7 +65,7 @@ message(STATUS ${CMAKE_BINARY_DIR})
 # message("BULLET_LIBRARIES:")
 # message(${BULLET_LIBRARIES})
 
-# include_directories(${BULLET_INCLUDE_DIRS})
+include_directories(${BULLET_INCLUDE_DIRS})
 
 add_executable(${APP} WIN32 ${HDRS} ${SRCS})
 
@@ -103,7 +103,6 @@ endif(WIN32)
 
 
 if(WIN32)
-
 	install(TARGETS ${APP}
 		RUNTIME DESTINATION bin
 		CONFIGURATIONS All)
@@ -128,9 +127,9 @@ if(WIN32)
 		CONFIGURATIONS Debug
 	)
 
-        # NOTE: for the 1.7.1 sdk the OIS dll is called OIS.dll instead of libOIS.dll
-        # so you'll have to change that to make it work with 1.7.1
-		# Removed in 1.11 now SDL.
+  # NOTE: for the 1.7.1 sdk the OIS dll is called OIS.dll instead of libOIS.dll
+  # so you'll have to change that to make it work with 1.7.1
+	# Removed in 1.11 now SDL.
 	install(FILES ${OGRE_CONFIG_DIR}/OgreMain.dll
 		${OGRE_CONFIG_DIR}/RenderSystem_Direct3D11.dll
 		${OGRE_CONFIG_DIR}/RenderSystem_GL.dll
