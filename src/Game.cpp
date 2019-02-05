@@ -171,7 +171,6 @@ void Game::setupBoxMesh()
    // I'll rotate the scene node and later the collision shape.
     thisSceneNode->setOrientation(quat);
 
-
     Vector3 meshBoundingBox(b.getSize());
 
     if(meshBoundingBox == Vector3::ZERO)
@@ -200,7 +199,8 @@ void Game::setupBoxMesh()
     btVector3 localInertia(0, 0, 0);
     if (isDynamic)
     {
-        std::cout << "I see the cube is dynamic" << std::endl;
+        // Debugging
+        //std::cout << "I see the cube is dynamic" << std::endl;
         colShape->calculateLocalInertia(mass, localInertia);
     }
 
@@ -241,19 +241,19 @@ void Game::setupFloor()
     Entity* groundEntity = scnMgr->createEntity("ground");
 
     //Setup ground entity
-        // Shadows off
+    // Shadows off
     groundEntity->setCastShadows(false);
-        // Material - Examples is the rsources file,
-        // Rockwall (texture/properties) is defined inside it.
+
+    // Material - Examples is the rsources file,
+    // Rockwall (texture/properties) is defined inside it.
     groundEntity->setMaterialName("Examples/Rockwall");
 
     // Create a scene node to add the mesh too.
     SceneNode* thisSceneNode = scnMgr->getRootSceneNode()->createChildSceneNode();
     thisSceneNode->attachObject(groundEntity);
 
-//the ground is a cube of side 100 at position y = 0.
-	//the sphere will hit it at y = -6, with center at -5
-
+    //the ground is a cube of side 100 at position y = 0.
+	   //the sphere will hit it at y = -6, with center at -5
     btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(750.), btScalar(50.), btScalar(750.)));
 
     collisionShapes.push_back(groundShape);
@@ -276,12 +276,10 @@ void Game::setupFloor()
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
     btRigidBody* body = new btRigidBody(rbInfo);
 
- //   body->setRestitution(0.0);
-
+    //   body->setRestitution(0.0);
 
     //add the body to the dynamics world
     dynamicsWorld->addRigidBody(body);
-
 }
 
 bool Game::frameEnded(const Ogre::FrameEvent &evt)
@@ -434,7 +432,7 @@ void Game::setupLights()
 
 bool Game::keyPressed(const KeyboardEvent& evt)
 {
-  //  std::cout << "Got key event" << std::endl;
+    std::cout << "Got key event" << std::endl;
     if (evt.keysym.sym == SDLK_ESCAPE)
     {
         getRoot()->queueEndRendering();
@@ -445,6 +443,6 @@ bool Game::keyPressed(const KeyboardEvent& evt)
 
 bool Game::mouseMoved(const MouseMotionEvent& evt)
 {
-//	std::cout << "Got Mouse" << std::endl;
+	std::cout << "Got Mouse" << std::endl;
 	return true;
 }
