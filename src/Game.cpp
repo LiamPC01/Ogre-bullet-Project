@@ -295,6 +295,7 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
      dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
 
      // update positions of all objects
+     /*
      for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
      {
          btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
@@ -305,7 +306,7 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
          {
             body->getMotionState()->getWorldTransform(trans);
 
-            /* https://oramind.com/ogre-bullet-a-beginners-basic-guide/ */
+            // https://oramind.com/ogre-bullet-a-beginners-basic-guide/ 
             void *userPointer = body->getUserPointer();
             if (userPointer)
             {
@@ -321,6 +322,7 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
             trans = obj->getWorldTransform();
           }
      }
+	*/
    }
   return true;
 }
@@ -329,9 +331,9 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
 bool Game::frameStarted (const Ogre::FrameEvent &evt)
 {
     //Be sure to call base class - otherwise events are not polled.
-	  ApplicationContext::frameStarted(evt);
+    ApplicationContext::frameStarted(evt);
 
-	  if (this->dynamicsWorld != NULL)
+    if (this->dynamicsWorld != NULL)
     {
         // Bullet can work with a fixed timestep
         //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
@@ -341,7 +343,6 @@ bool Game::frameStarted (const Ogre::FrameEvent &evt)
 
        dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
 
-/* TESTING - I dont' think I need to do this
        // update positions of all objects
        for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
        {
@@ -369,7 +370,6 @@ bool Game::frameStarted (const Ogre::FrameEvent &evt)
               trans = obj->getWorldTransform();
             }
        }
-*/
      }
   return true;
 }
