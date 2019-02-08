@@ -45,7 +45,8 @@ public:
 	void setupCamera();
 
 	void setupBoxMesh();
-  void setupFloor();
+        void setupBoxMesh2();
+        void setupFloor();
 
 	void setupLights();
 
