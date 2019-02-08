@@ -93,7 +93,7 @@ void Game::setup()
 
     setupBoxMesh();
 
-    setupBoxMesh();
+    setupBoxMesh2();
 }
 
 void Game::setupCamera()
@@ -107,7 +107,7 @@ void Game::setupCamera()
     // Position Camera - to do this it must be attached to a scene graph and added
     // to the scene.
     SceneNode* camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-    camNode->setPosition(200, 300, 400);
+    camNode->setPosition(200, 300, 600);
     camNode->lookAt(Vector3(0, 0, 0), Node::TransformSpace::TS_WORLD);
     camNode->attachObject(cam);
 
@@ -161,19 +161,19 @@ void Game::setupBoxMesh()
    // thisSceneNode->setOrientation(quat);
     thisSceneNode->setScale(1.0,1.0,1.0);
 
-    thisSceneNode->setPosition(0,200,0);
-
-
-    //get bounding box here.
+     //get bounding box here.
     thisSceneNode->_updateBounds();
     const AxisAlignedBox& b = thisSceneNode->_getWorldAABB(); // box->getWorldBoundingBox();
-   thisSceneNode->showBoundingBox(true);
+   //thisSceneNode->showBoundingBox(true);
    // std::cout << b << std::endl;
    // std::cout << "AAB [" << (float)b.x << " " << b.y << " " << b.z << "]" << std::endl;
 
    // Now I have a bounding box I can use it to make the collision shape.
    // I'll rotate the scene node and later the collision shape.
     thisSceneNode->setOrientation(quat);
+
+    thisSceneNode->setPosition(0,200,0);
+
 
     Vector3 meshBoundingBox(b.getSize());
 
@@ -184,7 +184,7 @@ void Game::setupBoxMesh()
 
     //create a dynamic rigidbody
 
-    btCollisionShape* colShape = new btBoxShape(btVector3(meshBoundingBox.x, meshBoundingBox.y, meshBoundingBox.z));
+    btCollisionShape* colShape = new btBoxShape(btVector3(meshBoundingBox.x/2.0f, meshBoundingBox.y/2.0f, meshBoundingBox.z/2.0f));
     std::cout << "Mesh box col shape [" << (float)meshBoundingBox.x << " " << meshBoundingBox.y << " " << meshBoundingBox.z << "]" << std::endl;
    // btCollisionShape* colShape = new btBoxShape(btVector3(10.0,10.0,10.0));
     //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -239,8 +239,6 @@ void Game::setupBoxMesh2()
     SceneNode* thisSceneNode = scnMgr->getRootSceneNode()->createChildSceneNode();
     thisSceneNode->attachObject(box);
 
-    
-
     // Axis
     Vector3 axis(1.0,1.0,0.0);
     axis.normalise();
@@ -254,18 +252,20 @@ void Game::setupBoxMesh2()
    // thisSceneNode->setOrientation(quat);
     thisSceneNode->setScale(1.0,1.0,1.0);
 
-    thisSceneNode->setPosition(0,600,0);
-
     //get bounding box here.
     thisSceneNode->_updateBounds();
     const AxisAlignedBox& b = thisSceneNode->_getWorldAABB(); // box->getWorldBoundingBox();
-   thisSceneNode->showBoundingBox(true);
+   //thisSceneNode->showBoundingBox(true);
    // std::cout << b << std::endl;
    // std::cout << "AAB [" << (float)b.x << " " << b.y << " " << b.z << "]" << std::endl;
 
    // Now I have a bounding box I can use it to make the collision shape.
    // I'll rotate the scene node and later the collision shape.
     thisSceneNode->setOrientation(quat);
+
+	
+    thisSceneNode->setPosition(0,1600,0);
+
 
     Vector3 meshBoundingBox(b.getSize());
 
@@ -276,7 +276,7 @@ void Game::setupBoxMesh2()
 
     //create a dynamic rigidbody
 
-    btCollisionShape* colShape = new btBoxShape(btVector3(meshBoundingBox.x, meshBoundingBox.y, meshBoundingBox.z));
+    btCollisionShape* colShape = new btBoxShape(btVector3(meshBoundingBox.x/2.0f, meshBoundingBox.y/2.0f, meshBoundingBox.z/2.0f));
     std::cout << "Mesh box col shape [" << (float)meshBoundingBox.x << " " << meshBoundingBox.y << " " << meshBoundingBox.z << "]" << std::endl;
    // btCollisionShape* colShape = new btBoxShape(btVector3(10.0,10.0,10.0));
     //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -288,12 +288,13 @@ void Game::setupBoxMesh2()
     
     //startTransform.setOrigin(btVector3(0, 200, 0));
 
-    Vector3 pos = thisSceneNode->_getDerivedPosition();
-    startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
- 
     Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
     startTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
 
+    Vector3 pos = thisSceneNode->_getDerivedPosition();
+    startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+ 
+  
 
     btScalar mass(1.f);
 
@@ -362,7 +363,17 @@ void Game::setupFloor()
 
     btTransform groundTransform;
     groundTransform.setIdentity();
-    groundTransform.setOrigin(btVector3(0, -100, 0));
+  //  groundTransform.setOrigin(btVector3(0, -100, 0));
+
+    Vector3 pos = thisSceneNode->_getDerivedPosition();
+
+    //Box is 100 deep (dimensions are 1/2 heights)
+    //but the plane position is flat. 	
+    groundTransform.setOrigin(btVector3(pos.x, pos.y-50.0, pos.z));
+ 
+    Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
+    groundTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
+
 
     btScalar mass(0.);
 
