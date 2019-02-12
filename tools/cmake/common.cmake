@@ -125,7 +125,7 @@ if(WIN32)
 		${CMAKE_SOURCE_DIR}/dist/bin/resources_d.cfg
 		DESTINATION bin
 		CONFIGURATIONS Debug
-    RENAME resources.cfg
+		#RENAME resources.cfg
 	)
 
   # NOTE: for the 1.7.1 sdk the OIS dll is called OIS.dll instead of libOIS.dll
