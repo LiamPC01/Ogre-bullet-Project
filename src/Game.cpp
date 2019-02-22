@@ -188,12 +188,12 @@ void Game::setupBoxMesh()
     /// Create Dynamic Objects
     btTransform startTransform;
     startTransform.setIdentity();
-    
+
     //startTransform.setOrigin(btVector3(0, 200, 0));
 
     Vector3 pos = thisSceneNode->_getDerivedPosition();
     startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
- 
+
     Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
     startTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
 
@@ -269,9 +269,9 @@ void Game::setupFloor()
     Vector3 pos = thisSceneNode->_getDerivedPosition();
 
     //Box is 100 deep (dimensions are 1/2 heights)
-    //but the plane position is flat. 	
+    //but the plane position is flat.
     groundTransform.setOrigin(btVector3(pos.x, pos.y-50.0, pos.z));
- 
+
     Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
     groundTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
 
@@ -296,8 +296,11 @@ void Game::setupFloor()
     dynamicsWorld->addRigidBody(body);
 }
 
-bool Game::frameEnded(const Ogre::FrameEvent &evt)
+bool Game::frameStarted(const Ogre::FrameEvent &evt)
 {
+  //Be sure to call base class - otherwise events are not polled.
+  ApplicationContext::frameStarted(evt);
+
   if (this->dynamicsWorld != NULL)
   {
       // Bullet can work with a fixed timestep
@@ -340,51 +343,18 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
 }
 
 
-bool Game::frameStarted (const Ogre::FrameEvent &evt)
+bool Game::frameEnded (const Ogre::FrameEvent &evt)
 {
-    //Be sure to call base class - otherwise events are not polled.
-	  ApplicationContext::frameStarted(evt);
+  if (this->dynamicsWorld != NULL)
+  {
+      // Bullet can work with a fixed timestep
+      //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-	  if (this->dynamicsWorld != NULL)
-    {
-        // Bullet can work with a fixed timestep
-        //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
-
-        // Or a variable one, however, under the hood it uses a fixed timestep
-        // then interpolates between them.
+      // Or a variable one, however, under the hood it uses a fixed timestep
+      // then interpolates between them.
 
        dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
-
-/* TESTING - I dont' think I need to do this
-       // update positions of all objects
-       for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-       {
-           btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-           btRigidBody* body = btRigidBody::upcast(obj);
-           btTransform trans;
-
-           if (body && body->getMotionState())
-           {
-              body->getMotionState()->getWorldTransform(trans);
-
-              // https://oramind.com/ogre-bullet-a-beginners-basic-guide
-              void *userPointer = body->getUserPointer();
-              if (userPointer)
-              {
-                btQuaternion orientation = trans.getRotation();
-                Ogre::SceneNode *sceneNode = static_cast<Ogre::SceneNode *>(userPointer);
-                sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-                sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
-              }
-
-            }
-            else
-            {
-              trans = obj->getWorldTransform();
-            }
-       }
-*/
-     }
+  }
   return true;
 }
 
