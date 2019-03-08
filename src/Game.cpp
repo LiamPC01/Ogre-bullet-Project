@@ -94,7 +94,11 @@ void Game::setup()
     setupBoxMesh();
 
     setupBoxMesh2();
+
+    setupBoxMesh3();
 }
+
+
 
 void Game::setupCamera()
 {
@@ -140,13 +144,35 @@ void Game::bulletInit()
 
 void Game::setupBoxMesh()
 {
+    SceneNode* sceneRoot = scnMgr->getRootSceneNode();
+    float mass = 1.0f;
+
+    // Axis
+    Vector3 axis(1.0,1.0,0.0);
+    axis.normalise();
+
+    //angle
+    Radian rads(Degree(60.0));
+
+    player = new Player();
+    player->createMesh(scnMgr);
+    player->attachToNode(sceneRoot);
+
+    player->setRotation(axis,angle);
+    player->createRigidBody(mass);
+    player->addToCollisionShapes(collisionShapes);
+    player->addToDynamicsWorld(dynamicsWorld);    
+}
+
+void Game::setupBoxMesh()
+{
     Entity* box = scnMgr->createEntity("cube.mesh");
     box->setCastShadows(true);
 
     SceneNode* thisSceneNode = scnMgr->getRootSceneNode()->createChildSceneNode();
     thisSceneNode->attachObject(box);
 
-    
+
 
     // Axis
     Vector3 axis(1.0,1.0,0.0);
@@ -193,12 +219,12 @@ void Game::setupBoxMesh()
     /// Create Dynamic Objects
     btTransform startTransform;
     startTransform.setIdentity();
-    
+
     //startTransform.setOrigin(btVector3(0, 200, 0));
 
     Vector3 pos = thisSceneNode->_getDerivedPosition();
     startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
- 
+
     Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
     startTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
 
@@ -263,7 +289,7 @@ void Game::setupBoxMesh2()
    // I'll rotate the scene node and later the collision shape.
     thisSceneNode->setOrientation(quat);
 
-	
+
     thisSceneNode->setPosition(0,1600,0);
 
 
@@ -285,7 +311,7 @@ void Game::setupBoxMesh2()
     /// Create Dynamic Objects
     btTransform startTransform;
     startTransform.setIdentity();
-    
+
     //startTransform.setOrigin(btVector3(0, 200, 0));
 
     Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
@@ -293,8 +319,8 @@ void Game::setupBoxMesh2()
 
     Vector3 pos = thisSceneNode->_getDerivedPosition();
     startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
- 
-  
+
+
 
     btScalar mass(1.f);
 
@@ -368,9 +394,9 @@ void Game::setupFloor()
     Vector3 pos = thisSceneNode->_getDerivedPosition();
 
     //Box is 100 deep (dimensions are 1/2 heights)
-    //but the plane position is flat. 	
+    //but the plane position is flat.
     groundTransform.setOrigin(btVector3(pos.x, pos.y-50.0, pos.z));
- 
+
     Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
     groundTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
 

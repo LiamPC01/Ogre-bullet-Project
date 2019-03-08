@@ -25,10 +25,12 @@ find_package(Threads)
 
 set(HDRS
 	./src/Game.h
+	./src/Player.h
 )
 
 set(SRCS
 	./src/Game.cpp
+	./src/Player.cpp
 	./src/main.cpp
 )
 

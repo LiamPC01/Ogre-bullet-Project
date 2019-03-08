@@ -14,6 +14,8 @@
 using namespace Ogre;
 using namespace OgreBites;
 
+#include "Player.h"
+
 class Game : public ApplicationContext, public InputListener
 {
 private:
@@ -35,6 +37,9 @@ private:
     ///keep track of the shapes, we release memory at exit.
     //make sure to re-use collision shapes among rigid bodies whenever possible!
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
+    //Player objects
+    Player *player;
 
 public:
 	Game();
