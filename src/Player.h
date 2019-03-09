@@ -10,22 +10,29 @@
 
 using namespace Ogre;
 
+/** Example player class.
+* Written to illistrate the connection of Ogre/Bullet.
+* Essentially just a wrapper around the cube object setup code.
+*/
 class Player
 {
 private:
-  SceneNode* boxSceneNode;
-  Entity* box;
-  Vector3 meshBoundingBox;
+  SceneNode* boxSceneNode;     /**< Scene graph node */
+  Entity* box;                 /**< Mesh entity */
+  Vector3 meshBoundingBox;     /**< Size of the bounding mesh from ogre */
 
-  btCollisionShape* colShape;
-  btRigidBody* body;
-  btDiscreteDynamicsWorld* dynamicsWorld;
+  btCollisionShape* colShape;  /**< Collision shape, describes the collision boundary */
+  btRigidBody* body;           /**< Rigid Body */
+  btDiscreteDynamicsWorld* dynamicsWorld;  /**< physics/collision world */
 
 public:
   Player();
   ~Player();
 
-
+  /**
+  * Creates the mesh.
+  * @param scnMgr the Ogre SceneManager. 
+  */
   void createMesh(SceneManager* scnMgr);
   void attachToNode(SceneNode* parent);
 
