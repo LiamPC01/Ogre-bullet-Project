@@ -50,8 +50,9 @@ public:
 	void setupCamera();
 
 	void setupBoxMesh();
-        void setupBoxMesh2();
-        void setupFloor();
+  void setupBoxMesh2();
+  void setupPlayer();
+  void setupFloor();
 
 	void setupLights();
 

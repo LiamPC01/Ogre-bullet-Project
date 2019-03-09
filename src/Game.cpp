@@ -95,7 +95,7 @@ void Game::setup()
 
     setupBoxMesh2();
 
-    setupBoxMesh3();
+    setupPlayer();
 }
 
 
@@ -142,7 +142,7 @@ void Game::bulletInit()
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
-void Game::setupBoxMesh()
+void Game::setupPlayer()
 {
     SceneNode* sceneRoot = scnMgr->getRootSceneNode();
     float mass = 1.0f;
@@ -152,16 +152,18 @@ void Game::setupBoxMesh()
     axis.normalise();
 
     //angle
-    Radian rads(Degree(60.0));
+    Radian rads(Degree(25.0));
 
     player = new Player();
     player->createMesh(scnMgr);
     player->attachToNode(sceneRoot);
 
-    player->setRotation(axis,angle);
+    player->setRotation(axis,rads);
+    player->setPosition(20.0f,20.0f,20.0f);
+
     player->createRigidBody(mass);
     player->addToCollisionShapes(collisionShapes);
-    player->addToDynamicsWorld(dynamicsWorld);    
+    player->addToDynamicsWorld(dynamicsWorld);
 }
 
 void Game::setupBoxMesh()
@@ -353,7 +355,6 @@ void Game::setupBoxMesh2()
 
 void Game::setupFloor()
 {
-
     // Create a plane
     Plane plane(Vector3::UNIT_Y, 0);
 
@@ -421,8 +422,10 @@ void Game::setupFloor()
     dynamicsWorld->addRigidBody(body);
 }
 
-bool Game::frameEnded(const Ogre::FrameEvent &evt)
+bool Game::frameStarted (const Ogre::FrameEvent &evt)
 {
+  //Be sure to call base class - otherwise events are not polled.
+	ApplicationContext::frameStarted(evt);
   if (this->dynamicsWorld != NULL)
   {
       // Bullet can work with a fixed timestep
@@ -446,14 +449,20 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
 
             /* https://oramind.com/ogre-bullet-a-beginners-basic-guide/ */
             void *userPointer = body->getUserPointer();
-            if (userPointer)
-            {
-              btQuaternion orientation = trans.getRotation();
-              Ogre::SceneNode *sceneNode = static_cast<Ogre::SceneNode *>(userPointer);
-              sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-              sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
-            }
 
+            // Player should know enough to update itself.
+            if(userPointer == player)
+              player->update();
+            else //This is just to keep the other objects working.
+            {
+              if (userPointer)
+              {
+                btQuaternion orientation = trans.getRotation();
+                Ogre::SceneNode *sceneNode = static_cast<Ogre::SceneNode *>(userPointer);
+                sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+                sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
+              }
+            }
           }
           else
           {
@@ -464,52 +473,18 @@ bool Game::frameEnded(const Ogre::FrameEvent &evt)
   return true;
 }
 
-
-bool Game::frameStarted (const Ogre::FrameEvent &evt)
+bool Game::frameEnded(const Ogre::FrameEvent &evt)
 {
-    //Be sure to call base class - otherwise events are not polled.
-	  ApplicationContext::frameStarted(evt);
+  if (this->dynamicsWorld != NULL)
+  {
+    // Bullet can work with a fixed timestep
+    //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-	  if (this->dynamicsWorld != NULL)
-    {
-        // Bullet can work with a fixed timestep
-        //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+    // Or a variable one, however, under the hood it uses a fixed timestep
+    // then interpolates between them.
 
-        // Or a variable one, however, under the hood it uses a fixed timestep
-        // then interpolates between them.
-
-       dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
-
-/* TESTING - I dont' think I need to do this
-       // update positions of all objects
-       for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-       {
-           btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-           btRigidBody* body = btRigidBody::upcast(obj);
-           btTransform trans;
-
-           if (body && body->getMotionState())
-           {
-              body->getMotionState()->getWorldTransform(trans);
-
-              // https://oramind.com/ogre-bullet-a-beginners-basic-guide
-              void *userPointer = body->getUserPointer();
-              if (userPointer)
-              {
-                btQuaternion orientation = trans.getRotation();
-                Ogre::SceneNode *sceneNode = static_cast<Ogre::SceneNode *>(userPointer);
-                sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-                sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
-              }
-
-            }
-            else
-            {
-              trans = obj->getWorldTransform();
-            }
-       }
-*/
-     }
+    dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
+  }
   return true;
 }
 

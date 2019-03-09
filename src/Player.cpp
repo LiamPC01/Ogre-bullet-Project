@@ -1,16 +1,16 @@
 #include "Player.h"
 
-void Player::Player()
+Player::Player()
 {
   boxSceneNode = nullptr;
   box = nullptr;
   Vector3 meshBoundingBox(0.0f,0.0f,0.0f);
 
   colShape = nullptr;
-  btRigidBody = nullptr;
+  dynamicsWorld = nullptr;
 }
 
-void Player::~Player()
+Player::~Player()
 {
 
 }
@@ -18,43 +18,44 @@ void Player::~Player()
 void Player::createMesh(SceneManager* scnMgr)
 {
   box = scnMgr->createEntity("cube.mesh");
-  thisSceneNode->setScale(1.0f,1.0f,1.0f);
-  boundingBoxFromOgre();
 }
 
-void Player::attachToNode(Schenenode* parent)
+void Player::attachToNode(SceneNode* parent)
 {
-  parent->createChildSceneNode()->attachObject(box);
+  boxSceneNode = parent->createChildSceneNode();
+  boxSceneNode->attachObject(box);
+  boxSceneNode->setScale(1.0f,1.0f,1.0f);
+  boundingBoxFromOgre();
 }
 
 void Player::setScale(float x, float y, float z)
 {
-    thisSceneNode->setScale(x,y,z);
+    boxSceneNode->setScale(x,y,z);
 }
 
 
-void Player::setRotation(Vector3 axis, Radian angle)
+void Player::setRotation(Vector3 axis, Radian rads)
 {
   //quat from axis angle
   Quaternion quat(rads, axis);
-  thisSceneNode->setOrientation(quat);
+  boxSceneNode->setOrientation(quat);
 }
 
 void Player::setPosition(float x, float y, float z)
 {
-  thisSceneNode->setPosition(x,y,z);
+  boxSceneNode->setPosition(x,y,z);
 }
 
 void Player::boundingBoxFromOgre()
 {
   //get bounding box here.
-  thisSceneNode->_updateBounds();
-  const AxisAlignedBox& b = thisSceneNode->_getWorldAABB();
+  boxSceneNode->_updateBounds();
+  const AxisAlignedBox& b = boxSceneNode->_getWorldAABB();
   Vector3 temp(b.getSize());
   meshBoundingBox = temp;
 }
 
-void Player::createRigidBody(float mass)
+void Player::createRigidBody(float bodyMass)
 {
   colShape = new btBoxShape(btVector3(meshBoundingBox.x/2.0f, meshBoundingBox.y/2.0f, meshBoundingBox.z/2.0f));
 
@@ -62,13 +63,13 @@ void Player::createRigidBody(float mass)
   btTransform startTransform;
   startTransform.setIdentity();
 
-  Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
+  Quaternion quat2 = boxSceneNode->_getDerivedOrientation();
   startTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
 
-  Vector3 pos = thisSceneNode->_getDerivedPosition();
+  Vector3 pos = boxSceneNode->_getDerivedPosition();
   startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
 
-  btScalar mass(mass);
+  btScalar mass(bodyMass);
 
   //rigidbody is dynamic if and only if mass is non zero, otherwise static
   bool isDynamic = (mass != 0.f);
@@ -92,10 +93,26 @@ void Player::createRigidBody(float mass)
 
 void Player::addToCollisionShapes(btAlignedObjectArray<btCollisionShape*> &collisionShapes)
 {
-  collisionShapes->push_back(colShape);
+  collisionShapes.push_back(colShape);
 }
 
-void Player::addToDynamicsWorld(btDiscreteDynamicsWorld* dynamicsWorld);
+void Player::addToDynamicsWorld(btDiscreteDynamicsWorld* dynamicsWorld)
 {
+  this->dynamicsWorld = dynamicsWorld;
   dynamicsWorld->addRigidBody(body);
+}
+
+void Player::update()
+{
+  btTransform trans;
+
+  if (body && body->getMotionState())
+  {
+    body->getMotionState()->getWorldTransform(trans);
+    btQuaternion orientation = trans.getRotation();
+
+    boxSceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+    boxSceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
+  }
+
 }
