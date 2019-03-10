@@ -16,29 +16,49 @@ using namespace OgreBites;
 
 #include "Player.h"
 
+/** Example Games class.
+* Based (very heavily) on the Ogre3d examples.  Even uses OgreBytes (which I'd like to remove).
+*/
 class Game : public ApplicationContext, public InputListener
 {
 private:
+    /**
+    * Ogre Scene Manager.
     SceneManager* scnMgr;
 
-    //// collision configuration.
+    /**
+    * Collision configuration.
+    */
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
-    ///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    /**
+    * The default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+    */
     btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
-    ///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+    /**
+    * btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+    */
     btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
 
-    ///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+    /**
+    * The default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+    */
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+    /**
+    * The dynamics world (physics/collision world).
+    */
     btDiscreteDynamicsWorld* dynamicsWorld;
 
-    ///keep track of the shapes, we release memory at exit.
-    //make sure to re-use collision shapes among rigid bodies whenever possible!
+    /**
+    * Keep track of the shapes, we release memory at exit.
+    * make sure to re-use collision shapes among rigid bodies whenever possible!
+    */
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
-    //Player objects
+    /**
+    * Player object ... OK, its a block.
+    */
     Player *player;
 
 public:

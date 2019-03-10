@@ -31,21 +31,67 @@ public:
 
   /**
   * Creates the mesh.
-  * @param scnMgr the Ogre SceneManager. 
+  * @param scnMgr the Ogre SceneManager.
   */
   void createMesh(SceneManager* scnMgr);
+  /**
+  * Creates a new child of the given parent node, adds the mesh to it.
+  * @param parent, the parent (in the scene graph) of the node the player will be attatched to.
+  */
   void attachToNode(SceneNode* parent);
 
+
+  /**
+  * Sets the scale.
+  * @param x, scale on the x axis.
+  * @param y, scale on the y axis.
+  * @param z, scale on the z axis.
+  */
   void setScale(float x, float y, float z);
+  /**
+  * Sets the orientation.
+  * @param axis, vector about which the orientation takes place.
+  * @param angle, angle (in radians).
+  */
   void setRotation(Vector3 axis, Radian angle);
-  void setPosition(float x, float y, float z);
+
+  /**
+  * Sets the position.
+  * @param x, position on the x axis.
+  * @param y, position on the y axis.
+  * @param z, position on the z axis.
+  */  void setPosition(float x, float y, float z);
+
+  /**
+  * Fudge to get the bouning box from Ogre3d, at a it might work for other shapes.
+  */
   void boundingBoxFromOgre();
 
+  /**
+  * Creates a new ridgid body of the given mass.
+  * @param mass
+  */
   void createRigidBody(float mass);
+  /**
+  * Add this collision shape to the collision shapes list
+  * @param collisionShaps, the list of collision shapes (shared with the physics world).
+  */
   void addToCollisionShapes(btAlignedObjectArray<btCollisionShape*> &collisionShapes);
+  /**
+  *  Add this rigid body to the dynamicsWorld.
+  * @param dynamicsWorld, the wrold we're going to add ourselves to.
+  */
   void addToDynamicsWorld(btDiscreteDynamicsWorld* dynamicsWorld);
+
+  /**
+  * What on Earth is this for!? Can't change the mass of a rigid body.
+  * @param mass
+  */
   void setMass(float mass);
 
+  /**
+  * Update, um ... makes coffee.
+  */
   void update();
 
 };
