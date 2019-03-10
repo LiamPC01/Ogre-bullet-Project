@@ -24,6 +24,7 @@ class Game : public ApplicationContext, public InputListener
 private:
     /**
     * Ogre Scene Manager.
+    */
     SceneManager* scnMgr;
 
     /**
