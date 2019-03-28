@@ -94,6 +94,24 @@ public:
   */
   void update();
 
+  /**
+  * Moves the player forward with maximum acceleration.
+  */
+  void forward();
+
+  /**
+  * Turn the player to the right, use a point on the front of the cube
+  * this will hopefully translate to more vehicle like movement.
+  */
+  void turnRight();
+
+  /**
+  * Turn the player to the right, use a torque on the center point
+  * this will give the player 'midtown madness' like steering.
+  */
+  void spinRight();
+
+
 };
 
 

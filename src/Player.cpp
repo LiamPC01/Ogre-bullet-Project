@@ -87,6 +87,11 @@ void Player::createRigidBody(float bodyMass)
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
   body = new btRigidBody(rbInfo);
 
+  btScalar linearDamping = 0.2f;
+  btScalar angularDamping = 0.8f;
+
+  body->setDamping(linearDamping,angularDamping);
+
   //Set the user pointer to this object.
   body->setUserPointer((void*)this);
 }
@@ -114,5 +119,54 @@ void Player::update()
     boxSceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
     boxSceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
   }
-
 }
+
+void Player::forward()
+{
+    float forwardForce = 100.0f;
+    btVector3 fwd(0.0f,0.0f,forwardForce);
+    btVector3 push;
+
+    btTransform trans;
+
+    if (body && body->getMotionState())
+    {
+        body->getMotionState()->getWorldTransform(trans);
+        btQuaternion orientation = trans.getRotation();
+
+        push = quatRotate(orientation, fwd);
+
+        body->activate();
+        body->applyCentralForce(push);
+    }
+}
+
+void Player::turnRight()
+{
+    float turningForce = 20.0f;
+    btVector3 right(5.0f,0.0f,0.0f);
+    btVector3 turn;
+
+    btTransform trans;
+
+    if (body)// && body->getMotionState())
+    {
+        body->getMotionState()->getWorldTransform(trans);
+        btQuaternion orientation = trans.getRotation();
+        btVector3 front(trans.getOrigin());
+
+        //use original bounding mesh to get the front center
+        front += btVector3(0.0f,0.0f,meshBoundingBox.z/2);
+
+        turn = quatRotate(orientation, right);
+
+        //took this out, can't turn if your not moving.
+        //body->activate();
+
+        //better - only turn if we're moving.
+        //not ideal, if sliding sideways will keep turning.
+        if(body->getLinearVelocity().length() > 0.0f)
+            body->applyForce(turn,front);
+    }
+}
+

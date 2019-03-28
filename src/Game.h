@@ -62,6 +62,16 @@ private:
     */
     Player *player;
 
+    /**
+    * w key flag - should this be here?
+    */
+    bool wDown;
+
+    /**
+    * w key flag - should this be here?
+    */
+    bool aDown;
+
 public:
   /**
   * Creates the object, sets all pointers to nullptr.
@@ -115,6 +125,13 @@ public:
   * @param evt, a KeyboardEvent
   */
 	bool keyPressed(const KeyboardEvent& evt);
+
+  /**
+  * Overload of the keyReleased method.
+  * @param evt, a KeyboardEvent
+  */
+	bool keyReleased(const KeyboardEvent& evt);
+
 
   /**
   * Overload of the mouseMoved method.

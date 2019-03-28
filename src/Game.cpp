@@ -17,6 +17,9 @@ Manual generation of meshes from here:
 Game::Game() : ApplicationContext("OgreTutorialApp")
 {
     dynamicsWorld = NULL;
+
+    wDown = false;
+    aDown = false;
 }
 
 
@@ -111,7 +114,7 @@ void Game::setupCamera()
     // Position Camera - to do this it must be attached to a scene graph and added
     // to the scene.
     SceneNode* camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-    camNode->setPosition(200, 300, 600);
+    camNode->setPosition(200, 300, 800);
     camNode->lookAt(Vector3(0, 0, 0), Node::TransformSpace::TS_WORLD);
     camNode->attachObject(cam);
 
@@ -362,7 +365,7 @@ void Game::setupFloor()
     MeshManager::getSingleton().createPlane(
             "ground", RGN_DEFAULT,
             plane,
-            1500, 1500, 20, 20,
+            3000, 3000, 20, 20,
             true,
             1, 5, 5,
             Vector3::UNIT_Z);
@@ -384,7 +387,7 @@ void Game::setupFloor()
 
     //the ground is a cube of side 100 at position y = 0.
 	   //the sphere will hit it at y = -6, with center at -5
-    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(750.), btScalar(50.), btScalar(750.)));
+    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(1500.), btScalar(50.), btScalar(1500.)));
 
     collisionShapes.push_back(groundShape);
 
@@ -428,6 +431,13 @@ bool Game::frameStarted (const Ogre::FrameEvent &evt)
 	ApplicationContext::frameStarted(evt);
   if (this->dynamicsWorld != NULL)
   {
+      // Apply new forces
+      if(wDown)
+        player->forward();
+
+      if(aDown)
+        player->turnRight();
+
       // Bullet can work with a fixed timestep
       //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
@@ -452,7 +462,9 @@ bool Game::frameStarted (const Ogre::FrameEvent &evt)
 
             // Player should know enough to update itself.
             if(userPointer == player)
-              player->update();
+            {
+                // Ignore player, he's always updated!
+            }
             else //This is just to keep the other objects working.
             {
               if (userPointer)
@@ -469,6 +481,9 @@ bool Game::frameStarted (const Ogre::FrameEvent &evt)
             trans = obj->getWorldTransform();
           }
      }
+
+     //Update player here, his movement is not dependent on collisions.
+     player->update();
    }
   return true;
 }
@@ -546,11 +561,39 @@ void Game::setupLights()
 
 bool Game::keyPressed(const KeyboardEvent& evt)
 {
-    std::cout << "Got key event" << std::endl;
+    std::cout << "Got key down event" << std::endl;
     if (evt.keysym.sym == SDLK_ESCAPE)
     {
         getRoot()->queueEndRendering();
     }
+
+    if(evt.keysym.sym == 'w')
+    {
+        wDown = true;
+    }
+
+    if(evt.keysym.sym == 'a')
+    {
+        aDown = true;
+    }
+
+    return true;
+}
+
+bool Game::keyReleased(const KeyboardEvent& evt)
+{
+    std::cout << "Got key up event" << std::endl;
+
+    if(evt.keysym.sym == 'w')
+    {
+        wDown = false;
+    }
+
+    if(evt.keysym.sym == 'a')
+    {
+        aDown = false;
+    }
+
     return true;
 }
 
