@@ -25,6 +25,9 @@ private:
   btRigidBody* body;           /**< Rigid Body */
   btDiscreteDynamicsWorld* dynamicsWorld;  /**< physics/collision world */
 
+  float forwardForce; /**< Force of the engine/thrusters moving the player forward */
+  float turningForce; /**< Force exerted by the turning of the wheels or thrusters */
+
 public:
   Player();
   ~Player();
@@ -107,7 +110,7 @@ public:
 
   /**
   * Turn the player to the right, use a torque on the center point
-  * this will give the player 'midtown madness' like steering.
+  * this will give the player 'midtown madness' or thruster like steering.
   */
   void spinRight();
 

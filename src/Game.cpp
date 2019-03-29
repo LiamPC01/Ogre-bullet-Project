@@ -436,8 +436,10 @@ bool Game::frameStarted (const Ogre::FrameEvent &evt)
         player->forward();
 
       if(aDown)
+      {
         player->turnRight();
-
+        //player->spinRight(); // -- Doesnt' work
+      }
       // Bullet can work with a fixed timestep
       //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 

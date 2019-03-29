@@ -8,6 +8,13 @@ Player::Player()
 
   colShape = nullptr;
   dynamicsWorld = nullptr;
+
+  /* Note: These are hardcoded in player.  Should probably be read in from a
+  * config file or similar.
+  */
+
+  forwardForce = 100.0f;
+  turningForce = 20.0f;
 }
 
 Player::~Player()
@@ -123,7 +130,8 @@ void Player::update()
 
 void Player::forward()
 {
-    float forwardForce = 100.0f;
+    //Create a vector in local coordinates
+    //pointing down z.
     btVector3 fwd(0.0f,0.0f,forwardForce);
     btVector3 push;
 
@@ -131,33 +139,45 @@ void Player::forward()
 
     if (body && body->getMotionState())
     {
+        //get the orientation of the rigid body in world space.
         body->getMotionState()->getWorldTransform(trans);
         btQuaternion orientation = trans.getRotation();
 
+        //rotate the local force, into the global space.
+        //i.e. push in down the local z.
         push = quatRotate(orientation, fwd);
 
+        //activate the body, this is essential if the body
+        //has gone to sleep (i.e. stopped moving/colliding).
         body->activate();
+
+        //apply a force to the center of the body
         body->applyCentralForce(push);
     }
 }
 
 void Player::turnRight()
 {
-    float turningForce = 20.0f;
-    btVector3 right(5.0f,0.0f,0.0f);
+    //Apply a turning force to the front of the body.
+    btVector3 right(turningForce,0.0f,0.0f);
     btVector3 turn;
 
     btTransform trans;
 
-    if (body)// && body->getMotionState())
+    if (body && body->getMotionState())
     {
+        //again get the orientation of the body.
         body->getMotionState()->getWorldTransform(trans);
         btQuaternion orientation = trans.getRotation();
+
+        //get the position of the body, so we can identify the
+        //front and push it.
         btVector3 front(trans.getOrigin());
 
         //use original bounding mesh to get the front center
         front += btVector3(0.0f,0.0f,meshBoundingBox.z/2);
 
+        //orientated the local force into world space.
         turn = quatRotate(orientation, right);
 
         //took this out, can't turn if your not moving.
@@ -167,6 +187,35 @@ void Player::turnRight()
         //not ideal, if sliding sideways will keep turning.
         if(body->getLinearVelocity().length() > 0.0f)
             body->applyForce(turn,front);
+    }
+}
+
+
+void Player::spinRight()
+{
+   //Apply a turning force to the front of the body.
+   //this is an axis (around which to turn)
+   //lenght of the vector is the magnitue of the torque.
+    btVector3 right(0.0f,100.0f,0.0f);
+    btVector3 turn;
+
+    btTransform trans;
+
+    if (body && body->getMotionState())
+    {
+        //again get the orientation of the body.
+        body->getMotionState()->getWorldTransform(trans);
+        btQuaternion orientation = trans.getRotation();
+
+        //orientated the local force into world space.
+        turn = quatRotate(orientation, right);
+
+        //activate the body, this is essential if the body
+        //has gone to sleep (i.e. stopped moving/colliding).
+        body->activate();
+
+        body->applyTorque(right);
+
     }
 }
 

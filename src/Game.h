@@ -64,11 +64,13 @@ private:
 
     /**
     * w key flag - should this be here?
+    * This is a questionable design decision, shouldn't such behaviour be delegated.
     */
     bool wDown;
 
     /**
     * w key flag - should this be here?
+    * This is a questionable design decision, shouldn't such behaviour be delegated.
     */
     bool aDown;
 
