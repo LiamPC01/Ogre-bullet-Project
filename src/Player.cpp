@@ -15,6 +15,8 @@ Player::Player()
 
   forwardForce = 100.0f;
   turningForce = 20.0f;
+  linearDamping = 0.2f;
+  angularDamping = 0.8f;
 }
 
 Player::~Player()
@@ -94,9 +96,10 @@ void Player::createRigidBody(float bodyMass)
   btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
   body = new btRigidBody(rbInfo);
 
-  btScalar linearDamping = 0.2f;
-  btScalar angularDamping = 0.8f;
-
+  //Set the linear and angular damping
+  //I'm using this to bring the object to rest when moving.
+  //An alternative would be to use friciton for the collison.
+  //No good for hovering stuff though.
   body->setDamping(linearDamping,angularDamping);
 
   //Set the user pointer to this object.
@@ -218,4 +221,3 @@ void Player::spinRight()
 
     }
 }
-

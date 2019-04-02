@@ -27,6 +27,8 @@ private:
 
   float forwardForce; /**< Force of the engine/thrusters moving the player forward */
   float turningForce; /**< Force exerted by the turning of the wheels or thrusters */
+  btScalar linearDamping; /**< Damping force on the linear motion of the body, kind of air/friction */
+  btScalar angularDamping; /**< Damping force on the angular motion of the body, kind of air/friction */
 
 public:
   Player();
