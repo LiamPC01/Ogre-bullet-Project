@@ -30,7 +30,11 @@ set(CMAKE_DEBUG_POSTFIX "_d")
 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/dist")
 
-find_package(OGRE 1.11 REQUIRED)
+#set(OGRE_DEPENDENCIES_DIR /home/gljenkins/Documents/Development/ogre1_12/ogre/build/Dependencies)
+
+#find_package(OGRE 1.12 REQUIRED)
+
+find_package(OGRE 1.12 REQUIRED COMPONENTS Bites RTShaderSystem)
 
 #DEBUGGING -
 message(STATUS "Current OGRE_CONFIG_DIR")
@@ -65,12 +69,19 @@ find_package(Bullet REQUIRED)
 # message("BULLET_LIBRARIES:")
 # message(${BULLET_LIBRARIES})
 
+# message(STATUS "OGRE_DEPENDENCIES_DIR:")
+# message(STATUS ${OGRE_DEPENDENCIES_DIR})
+
+# message(STATUS "OGRE_DEP_DIR:")
+# message(STATUS ${OGRE_DEP_DIR})
+
 include_directories(${BULLET_INCLUDE_DIRS})
 
 add_executable(${APP} WIN32 ${HDRS} ${SRCS})
 
 set_target_properties(${APP} PROPERTIES DEBUG_POSTFIX _d)
 
+target_link_libraries(${APP} OgreBites OgreRTShaderSystem)
 target_link_libraries(${APP} ${OGRE_LIBRARIES} ${OGRE_Overlay_LIBRARIES} ${BULLET_LIBRARIES})
 
 # Don't need these, Bullet3 is static!
