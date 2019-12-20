@@ -136,58 +136,68 @@ if(WIN32)
 		${CMAKE_SOURCE_DIR}/dist/bin/resources_d.cfg
 		DESTINATION bin
 		CONFIGURATIONS Debug
-		#RENAME resources.cfg
+		RENAME resources.cfg
 	)
 
-  # NOTE: for the 1.7.1 sdk the OIS dll is called OIS.dll instead of libOIS.dll
-  # so you'll have to change that to make it work with 1.7.1
-	# Removed in 1.11 now SDL.
-	install(FILES ${OGRE_CONFIG_DIR}/OgreMain.dll
-		${OGRE_CONFIG_DIR}/RenderSystem_Direct3D11.dll
-		${OGRE_CONFIG_DIR}/RenderSystem_GL.dll
-#		${OGRE_PLUGIN_DIR_REL}/libOIS.dll
-		DESTINATION bin
-		CONFIGURATIONS Release RelWithDebInfo
-	)
-
-	install(FILES ${OGRE_CONFIG_DIR}/OgreMain_d.dll
-		${OGRE_CONFIG_DIR}/RenderSystem_Direct3D11_d.dll
-		${OGRE_CONFIG_DIR}/RenderSystem_GL_d.dll
-#		${OGRE_PLUGIN_DIR_DBG}/libOIS_d.dll
-		DESTINATION bin
-		CONFIGURATIONS Debug
-	)
-
-	# Extra bits for Ogre Examples - GLJ
-	install(FILES ${OGRE_CONFIG_DIR}/OgreBites.dll
-		${OGRE_CONFIG_DIR}/OgreRTShaderSystem.dll
-		${OGRE_CONFIG_DIR}/OgreOverlay.dll
-		DESTINATION bin
-		CONFIGURATIONS Release RelWithDebInfo
-	)
-
-	# Extra bits for Ogre Examples - GLJ
-	install(FILES ${OGRE_CONFIG_DIR}/OgreBites_d.dll
-		${OGRE_CONFIG_DIR}/OgreRTShaderSystem_d.dll
-		${OGRE_CONFIG_DIR}/OgreOverlay_d.dll
-		DESTINATION bin
-		CONFIGURATIONS Debug
-	)
-
-	# Extra bits for examples - GLJ
-	install(FILES ${OGRE_CONFIG_DIR}/SDL2.dll
-		${OGRE_CONFIG_DIR}/zlib.dll
+	# Got lazy - going stuff all the dlls in for the release. 
+	file(GLOB_RECURSE OG_DLL_FILES  ${OGRE_CONFIG_DIR}/*.dll)
+	
+	install(FILES ${OG_DLL_FILES}
 		DESTINATION bin
 		CONFIGURATIONS Release RelWithDebInfo Debug
 	)
+	
+        # NOTE: for the 1.7.1 sdk the OIS dll is called OIS.dll instead of libOIS.dll
+        # so you'll have to change that to make it work with 1.7.1
+		# Removed in 1.11 now SDL.
+	#install(FILES ${OGRE_CONFIG_DIR}/OgreMain.dll
+	#	${OGRE_CONFIG_DIR}/RenderSystem_Direct3D11.dll
+	#	${OGRE_CONFIG_DIR}/RenderSystem_GL.dll
+#		${OGRE_PLUGIN_DIR_REL}/libOIS.dll
+	#	DESTINATION bin
+	#	CONFIGURATIONS Release RelWithDebInfo Debug
+	#)
+
+	# install(FILES ${OGRE_CONFIG_DIR}/OgreMain_d.dll
+	#	${OGRE_CONFIG_DIR}/RenderSystem_Direct3D11_d.dll
+	#	${OGRE_CONFIG_DIR}/RenderSystem_GL_d.dll
+	#	${OGRE_PLUGIN_DIR_DBG}/libOIS_d.dll
+	#	DESTINATION bin
+	#	CONFIGURATIONS Debug
+	#)
+
+	# Extra bits for Ogre Examples - GLJ
+	#install(FILES ${OGRE_CONFIG_DIR}/OgreBites.dll
+	#	${OGRE_CONFIG_DIR}/OgreRTShaderSystem.dll
+	#	${OGRE_CONFIG_DIR}/OgreOverlay.dll
+	#	DESTINATION bin
+	#	CONFIGURATIONS Release RelWithDebInfo Debug
+	#)
+
+	# Extra bits for Ogre Examples - GLJ
+	# Dec 2019 - Moved to using RelWithDebug 
+	# install(FILES ${OGRE_CONFIG_DIR}/OgreBites_d.dll
+	#	${OGRE_CONFIG_DIR}/OgreRTShaderSystem_d.dll
+	#	${OGRE_CONFIG_DIR}/OgreOverlay_d.dll
+	#	DESTINATION bin
+	#	CONFIGURATIONS Debug
+	#)
+
+	# Extra bits for examples - GLJ
+	#install(FILES ${OGRE_CONFIG_DIR}/SDL2.dll
+	#	${OGRE_CONFIG_DIR}/zlib.dll
+	#	DESTINATION bin
+	#	CONFIGURATIONS Release RelWithDebInfo Debug
+	#)
 
    # as of sdk 1.7.2 we need to copy the boost dll's as well
    # because they're not linked statically (it worked with 1.7.1 though)
-   install(FILES ${Boost_DATE_TIME_LIBRARY_RELEASE}
-      ${Boost_THREAD_LIBRARY_RELEASE}
-      DESTINATION bin
-      CONFIGURATIONS Release RelWithDebInfo
-   )
+   #install(FILES ${Boost_DATE_TIME_LIBRARY_RELEASE}
+    #  ${Boost_THREAD_LIBRARY_RELEASE}
+    #  DESTINATION bin
+    #  CONFIGURATIONS Release RelWithDebInfo
+   #)
+
 
    install(FILES ${Boost_DATE_TIME_LIBRARY_DEBUG}
       ${Boost_THREAD_LIBRARY_DEBUG}
