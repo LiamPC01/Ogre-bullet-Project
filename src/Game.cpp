@@ -17,6 +17,9 @@ Manual generation of meshes from here:
 Game::Game() : ApplicationContext("OgreTutorialApp")
 {
     dynamicsWorld = NULL;
+
+    wDown = false;
+    aDown = false;
 }
 
 
@@ -92,7 +95,13 @@ void Game::setup()
     setupLights();
 
     setupBoxMesh();
+
+    setupBoxMesh2();
+
+    setupPlayer();
 }
+
+
 
 void Game::setupCamera()
 {
@@ -105,7 +114,7 @@ void Game::setupCamera()
     // Position Camera - to do this it must be attached to a scene graph and added
     // to the scene.
     SceneNode* camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-    camNode->setPosition(200, 300, 600);
+    camNode->setPosition(200, 300, 800);
     camNode->lookAt(Vector3(0, 0, 0), Node::TransformSpace::TS_WORLD);
     camNode->attachObject(cam);
 
@@ -136,6 +145,30 @@ void Game::bulletInit()
      dynamicsWorld->setGravity(btVector3(0, -10, 0));
 }
 
+void Game::setupPlayer()
+{
+    SceneNode* sceneRoot = scnMgr->getRootSceneNode();
+    float mass = 1.0f;
+
+    // Axis
+    Vector3 axis(1.0,1.0,0.0);
+    axis.normalise();
+
+    //angle
+    Radian rads(Degree(25.0));
+
+    player = new Player();
+    player->createMesh(scnMgr);
+    player->attachToNode(sceneRoot);
+
+    player->setRotation(axis,rads);
+    player->setPosition(20.0f,20.0f,20.0f);
+
+    player->createRigidBody(mass);
+    player->addToCollisionShapes(collisionShapes);
+    player->addToDynamicsWorld(dynamicsWorld);
+}
+
 void Game::setupBoxMesh()
 {
     Entity* box = scnMgr->createEntity("cube.mesh");
@@ -143,6 +176,8 @@ void Game::setupBoxMesh()
 
     SceneNode* thisSceneNode = scnMgr->getRootSceneNode()->createChildSceneNode();
     thisSceneNode->attachObject(box);
+
+
 
     // Axis
     Vector3 axis(1.0,1.0,0.0);
@@ -157,12 +192,12 @@ void Game::setupBoxMesh()
     // thisSceneNode->setOrientation(quat);
     thisSceneNode->setScale(1.0,1.0,1.0);
 
-    //get bounding box here.
+     //get bounding box here.
     thisSceneNode->_updateBounds();
     const AxisAlignedBox& b = thisSceneNode->_getWorldAABB(); // box->getWorldBoundingBox();
-    thisSceneNode->showBoundingBox(true);
-    // std::cout << b << std::endl;
-    // std::cout << "AAB [" << (float)b.x << " " << b.y << " " << b.z << "]" << std::endl;
+   //thisSceneNode->showBoundingBox(true);
+   // std::cout << b << std::endl;
+   // std::cout << "AAB [" << (float)b.x << " " << b.y << " " << b.z << "]" << std::endl;
 
     // Now I have a bounding box I can use it to make the collision shape.
     // I'll rotate the scene node and later the collision shape.
@@ -225,10 +260,102 @@ void Game::setupBoxMesh()
     dynamicsWorld->addRigidBody(body);
 }
 
+void Game::setupBoxMesh2()
+{
+    Entity* box = scnMgr->createEntity("cube.mesh");
+    box->setCastShadows(true);
+
+    SceneNode* thisSceneNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+    thisSceneNode->attachObject(box);
+
+    // Axis
+    Vector3 axis(1.0,1.0,0.0);
+    axis.normalise();
+
+    //angle
+    Radian rads(Degree(45.0));
+
+    //quat from axis angle
+    Quaternion quat(rads, axis);
+
+   // thisSceneNode->setOrientation(quat);
+    thisSceneNode->setScale(1.0,1.0,1.0);
+
+    //get bounding box here.
+    thisSceneNode->_updateBounds();
+    const AxisAlignedBox& b = thisSceneNode->_getWorldAABB(); // box->getWorldBoundingBox();
+   //thisSceneNode->showBoundingBox(true);
+   // std::cout << b << std::endl;
+   // std::cout << "AAB [" << (float)b.x << " " << b.y << " " << b.z << "]" << std::endl;
+
+   // Now I have a bounding box I can use it to make the collision shape.
+   // I'll rotate the scene node and later the collision shape.
+    thisSceneNode->setOrientation(quat);
+
+
+    thisSceneNode->setPosition(0,1600,0);
+
+
+    Vector3 meshBoundingBox(b.getSize());
+
+    if(meshBoundingBox == Vector3::ZERO)
+    {
+        std::cout << "bounding voluem size is zero." << std::endl;
+    }
+
+    //create a dynamic rigidbody
+
+    btCollisionShape* colShape = new btBoxShape(btVector3(meshBoundingBox.x/2.0f, meshBoundingBox.y/2.0f, meshBoundingBox.z/2.0f));
+    std::cout << "Mesh box col shape [" << (float)meshBoundingBox.x << " " << meshBoundingBox.y << " " << meshBoundingBox.z << "]" << std::endl;
+   // btCollisionShape* colShape = new btBoxShape(btVector3(10.0,10.0,10.0));
+    //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+    collisionShapes.push_back(colShape);
+
+    /// Create Dynamic Objects
+    btTransform startTransform;
+    startTransform.setIdentity();
+
+    //startTransform.setOrigin(btVector3(0, 200, 0));
+
+    Quaternion quat2 = thisSceneNode->_getDerivedOrientation();
+    startTransform.setRotation(btQuaternion(quat2.x, quat2.y, quat2.z, quat2.w));
+
+    Vector3 pos = thisSceneNode->_getDerivedPosition();
+    startTransform.setOrigin(btVector3(pos.x, pos.y, pos.z));
+
+
+
+    btScalar mass(1.f);
+
+    //rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f);
+
+    btVector3 localInertia(0, 0, 0);
+    if (isDynamic)
+    {
+        // Debugging
+        //std::cout << "I see the cube is dynamic" << std::endl;
+        colShape->calculateLocalInertia(mass, localInertia);
+    }
+
+    std::cout << "Local inertia [" << (float)localInertia.x() << " " << localInertia.y() << " " << localInertia.z() << "]" << std::endl;
+
+    //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+    btRigidBody* body = new btRigidBody(rbInfo);
+
+    //Link to ogre
+    body->setUserPointer((void*)thisSceneNode);
+
+    //  body->setRestitution(0.5);
+
+    dynamicsWorld->addRigidBody(body);
+}
+
 
 void Game::setupFloor()
 {
-
     // Create a plane
     Plane plane(Vector3::UNIT_Y, 0);
 
@@ -236,7 +363,7 @@ void Game::setupFloor()
     MeshManager::getSingleton().createPlane(
             "ground", RGN_DEFAULT,
             plane,
-            1500, 1500, 20, 20,
+            3000, 3000, 20, 20,
             true,
             1, 5, 5,
             Vector3::UNIT_Z);
@@ -258,7 +385,7 @@ void Game::setupFloor()
 
     //the ground is a cube of side 100 at position y = 0.
 	   //the sphere will hit it at y = -6, with center at -5
-    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(750.), btScalar(50.), btScalar(750.)));
+    btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(1500.), btScalar(50.), btScalar(1500.)));
 
     collisionShapes.push_back(groundShape);
 
@@ -296,13 +423,21 @@ void Game::setupFloor()
     dynamicsWorld->addRigidBody(body);
 }
 
-bool Game::frameStarted(const Ogre::FrameEvent &evt)
+bool Game::frameStarted (const Ogre::FrameEvent &evt)
 {
   //Be sure to call base class - otherwise events are not polled.
-  ApplicationContext::frameStarted(evt);
-
+	ApplicationContext::frameStarted(evt);
   if (this->dynamicsWorld != NULL)
   {
+      // Apply new forces
+      if(wDown)
+        player->forward();
+
+      if(aDown)
+      {
+        player->turnRight();
+        //player->spinRight(); // -- Doesnt' work
+      }
       // Bullet can work with a fixed timestep
       //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
@@ -324,36 +459,46 @@ bool Game::frameStarted(const Ogre::FrameEvent &evt)
 
             /* https://oramind.com/ogre-bullet-a-beginners-basic-guide/ */
             void *userPointer = body->getUserPointer();
-            if (userPointer)
-            {
-              btQuaternion orientation = trans.getRotation();
-              Ogre::SceneNode *sceneNode = static_cast<Ogre::SceneNode *>(userPointer);
-              sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-              sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
-            }
 
+            // Player should know enough to update itself.
+            if(userPointer == player)
+            {
+                // Ignore player, he's always updated!
+            }
+            else //This is just to keep the other objects working.
+            {
+              if (userPointer)
+              {
+                btQuaternion orientation = trans.getRotation();
+                Ogre::SceneNode *sceneNode = static_cast<Ogre::SceneNode *>(userPointer);
+                sceneNode->setPosition(Ogre::Vector3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+                sceneNode->setOrientation(Ogre::Quaternion(orientation.getW(), orientation.getX(), orientation.getY(), orientation.getZ()));
+              }
+            }
           }
           else
           {
             trans = obj->getWorldTransform();
           }
      }
+
+     //Update player here, his movement is not dependent on collisions.
+     player->update();
    }
   return true;
 }
 
-
-bool Game::frameEnded (const Ogre::FrameEvent &evt)
+bool Game::frameEnded(const Ogre::FrameEvent &evt)
 {
   if (this->dynamicsWorld != NULL)
   {
-      // Bullet can work with a fixed timestep
-      //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+    // Bullet can work with a fixed timestep
+    //dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-      // Or a variable one, however, under the hood it uses a fixed timestep
-      // then interpolates between them.
+    // Or a variable one, however, under the hood it uses a fixed timestep
+    // then interpolates between them.
 
-       dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
+    dynamicsWorld->stepSimulation((float)evt.timeSinceLastFrame, 10);
   }
   return true;
 }
@@ -416,11 +561,39 @@ void Game::setupLights()
 
 bool Game::keyPressed(const KeyboardEvent& evt)
 {
-    std::cout << "Got key event" << std::endl;
+    std::cout << "Got key down event" << std::endl;
     if (evt.keysym.sym == SDLK_ESCAPE)
     {
         getRoot()->queueEndRendering();
     }
+
+    if(evt.keysym.sym == 'w')
+    {
+        wDown = true;
+    }
+
+    if(evt.keysym.sym == 'a')
+    {
+        aDown = true;
+    }
+
+    return true;
+}
+
+bool Game::keyReleased(const KeyboardEvent& evt)
+{
+    std::cout << "Got key up event" << std::endl;
+
+    if(evt.keysym.sym == 'w')
+    {
+        wDown = false;
+    }
+
+    if(evt.keysym.sym == 'a')
+    {
+        aDown = false;
+    }
+
     return true;
 }
 
