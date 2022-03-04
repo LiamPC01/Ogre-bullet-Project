@@ -32,9 +32,9 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/dist")
 
 #set(OGRE_DEPENDENCIES_DIR /home/gljenkins/Documents/Development/ogre1_12/ogre/build/Dependencies)
 
-#find_package(OGRE 1.12 REQUIRED)
+#find_package(OGRE 13.3.0 REQUIRED)
 
-find_package(OGRE 1.12 REQUIRED COMPONENTS Bites RTShaderSystem)
+find_package(OGRE 13.3.0 REQUIRED COMPONENTS Bites RTShaderSystem)
 
 #DEBUGGING -
 message(STATUS "Current OGRE_CONFIG_DIR")
