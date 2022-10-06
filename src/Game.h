@@ -73,6 +73,11 @@ private:
     * This is a questionable design decision, shouldn't such behaviour be delegated.
     */
     bool aDown;
+    bool sDown;
+    bool dDown;
+    bool eDown;
+
+   
 
 public:
   /**
@@ -159,4 +164,8 @@ public:
   * Sets up the bullet environment
   */
   void bulletInit();
+
+  bool frameRenderingQueued(const FrameEvent& evt);
+
+  
 };

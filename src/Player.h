@@ -19,6 +19,7 @@ class Player
 private:
   SceneNode* boxSceneNode;     /**< Scene graph node */
   Entity* box;                 /**< Mesh entity */
+  
   Vector3 meshBoundingBox;     /**< Size of the bounding mesh from ogre */
 
   btCollisionShape* colShape;  /**< Collision shape, describes the collision boundary */
@@ -30,9 +31,13 @@ private:
   btScalar linearDamping; /**< Damping force on the linear motion of the body, kind of air/friction */
   btScalar angularDamping; /**< Damping force on the angular motion of the body, kind of air/friction */
 
+  
+
 public:
   Player();
   ~Player();
+
+  AnimationState* ninjaAnimationState;
 
   /**
   * Creates the mesh.
@@ -115,6 +120,20 @@ public:
   * this will give the player 'midtown madness' or thruster like steering.
   */
   void spinRight();
+
+  void backwards();
+
+  void turnLeft();
+
+  void setUpNinjaAnimation();
+
+  void playAnimation(const FrameEvent& evt);
+
+  void walkAnimation();
+
+  void idleAnimation();
+
+  void attackAnimation();
 
 
 };
